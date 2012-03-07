@@ -1,0 +1,14 @@
+## PillMopper
+# Scrape, Fetch, Organize
+
+**Downloading the data in bulk from the FDA's AERS website**
+
+The AERS files are split into multiple .zip files on these two FDA pages:
+
+http://www.fda.gov/Drugs/GuidanceComplianceRegulatoryInformation/Surveillance/AdverseDrugEffects/ucm082193.htm
+http://www.fda.gov/Drugs/GuidanceComplianceRegulatoryInformation/Surveillance/AdverseDrugEffects/ucm083765.htm
+
+This phase simply downloads all of the zip files and organizes them on the local file system.
+
+This uses simple HTML parsing with Nokogiri to get the filename and label.
+
