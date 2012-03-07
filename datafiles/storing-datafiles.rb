@@ -20,6 +20,7 @@
 
 require 'rubygems'
 require 'fileutils'
+require 'mysql'
 
 START_LINE = 'C. DATA ELEMENT DESCRIPTIONS'
 END_LINE = 'D. DATA ELEMENT CONTENTS AND MAXIMUM LENGTHS'
@@ -29,7 +30,9 @@ SKIP_LINES = [
   /^-{2,}/  
 ]
 
-README_FILE = 'data-hold/datafiles/Asc_nts.txt'
+DATAFILES_DIR = 'data-hold/datafiles'
+README_FILE = File.join(DATAFILES_DIR, 'Asc_nts.txt')
+
 lines = File.open(README_FILE).readlines[40..-1] # skip Table of Contents
 lines = lines[ lines.index{|x| x.index START_LINE}...lines.index{|x| x.index END_LINE} ]
 
@@ -41,10 +44,10 @@ while line = lines.shift
   if tbl_info = line.match(/\d\) +(.+?) \((\w{4})\w{4}\.TXT\)/)
     #create new object
     
-    table_info << obj if obj
     
     desc, filestem = tbl_info[1..2]
     obj = {'description'=>desc, 'file_stem'=>filestem, 'fields'=>[]}
+    table_info << obj 
         
     puts "\n\t#{desc}"
   elsif SKIP_LINES.index{|regex| line =~ regex}
@@ -54,10 +57,12 @@ while line = lines.shift
     # inside a data field line
     if line[0..1] =~ /[A-Z][A-Z_]/
       # beginning of a datafield
-      obj['fields'] << field_hsh if field_hsh
       
       field_name, field_desc = line.match(/^([A-Z_]+)\s+(.+)/)[1..2]
       field_hsh = {'name'=>field_name, 'description'=>field_desc}
+      obj['fields'] << field_hsh 
+      
+      
     else
       # description continues
       if line =~ /----\s+-+/
@@ -81,21 +86,76 @@ while line = lines.shift
 end # end of while
 
 
+### Set up MySQL
+### set up fda_data database first
+mdb = Mysql::new("localhost", "root", "", "fda_data")
+
+
+
 puts "results\n\n\n\n"
 
 table_info.each do |table|
-  puts table['name']
+  tbl_name = table['file_stem']
+  puts "\n\n-----------------\n#{tbl_name}"
+  
   puts table['description']
   
-  table['fields'].each do |field|
-    puts [field['name'], field['description'].gsub(/\s+/, ' ') ].join("\t>>\t")
+  mdb.query("DROP TABLE IF EXISTS `#{tbl_name}`; ")
+  mysql_q = "CREATE TABLE `#{tbl_name}`(
+    #{table['fields'].map{|fd| "`#{fd['name']}` VARCHAR(255)"}.join(",\n\t") },
+    `year` INT(4), `quarter` INT(1) ); "
+  
+  puts mysql_q
+  mdb.query(mysql_q)
+
+  # now grab each file of that stem and input it into database
+  puts "Inserting files into database...\n"
+  
+  Dir.glob("#{DATAFILES_DIR}/**/#{tbl_name}*.TXT").each do |fname|
+    puts "Loading #{fname}"
+    file = File.open(fname)
+    year,quarter = File.basename(fname).match(/(\d{2})Q(\d{1})/)[1..2]
+    year = "20#{year}" # obv., this won't work in 2100+ A.D.
     
-    if codes = field['codes']
-       codes.each do |code|
-         puts "\t#{code.join('=>')}"
-       end
-    end 
+    # get headers
+    headers = file.readline.chomp.split("$")
+
+    1000.times.each do
+      cols = file.readline.split("$"); 
+      cols[-1].chomp!
+      puts headers.length
+      puts cols.length
+      
+      q = "INSERT INTO #{tbl_name}(
+        #{headers.map{|h| "`#{h}`"}.join(',')}, year, quarter
+      )
+      VALUES(
+        #{cols.map{|c| "\"#{mdb.escape_string(c)}\""}.join(',')}, #{year}, #{quarter}      
+      )
+      "
+     
+      puts q
+      mdb.query(q)
+      
+    end
     
   end
   
+    
+#  table['fields'].each do |field|
+#    puts [field['name'], field['description'].gsub(/\s+/, ' ') ].join("\t>>\t")
+ 
+     
+    
+#    if codes = field['codes']
+#       codes.each do |code|
+#         puts "\t#{code.join('=>')}"
+#       end
+#    end 
+    
+#  end
+  
 end
+
+
+
