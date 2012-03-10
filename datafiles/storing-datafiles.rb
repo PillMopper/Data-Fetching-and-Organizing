@@ -119,12 +119,14 @@ table_info.each do |table|
     
     # get headers
     headers = file.readline.chomp.split("$")
-
-    1000.times.each do
-      cols = file.readline.split("$"); 
-      cols[-1].chomp!
-      puts headers.length
-      puts cols.length
+    h_lth = headers.length
+#    1000.times.each do |line_num|
+     line_num = 1
+     until file.eof?
+      cols = file.readline.chomp.split("$", h_lth); 
+      line_num += 1
+#      puts headers.length
+#      puts cols.length
       
       q = "INSERT INTO #{tbl_name}(
         #{headers.map{|h| "`#{h}`"}.join(',')}, year, quarter
@@ -134,8 +136,13 @@ table_info.each do |table|
       )
       "
      
-      puts q
-      mdb.query(q)
+     # puts q
+      begin
+        mdb.query(q)
+      rescue
+        puts "Problem with line #{line_num}"
+        puts cols.join("\t")
+      end
       
     end
     

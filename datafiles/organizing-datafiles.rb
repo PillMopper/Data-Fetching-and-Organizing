@@ -5,7 +5,7 @@
 # Skill level: 
 # Easy
 #
-# Description:
+# Description: Nothing yet
 
 require 'rubygems'
 require 'nokogiri'
