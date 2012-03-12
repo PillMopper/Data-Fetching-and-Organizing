@@ -16,10 +16,9 @@
 #
 # I've left the code verbose, this could be done in about 10 lines
 
-require 'rubygems'
+require './constants.rb'
 require 'nokogiri'
 require 'open-uri'
-require 'fileutils'
 
 BASE_FDA_URL = 'http://www.fda.gov'
 URLS = {
@@ -27,8 +26,7 @@ URLS = {
   'older' => 'http://www.fda.gov/Drugs/GuidanceComplianceRegulatoryInformation/Surveillance/AdverseDrugEffects/ucm083765.htm'
 }
 
-FILE_DIR = 'data-hold/datafiles/raw'
-FileUtils.makedirs(FILE_DIR) 
+FileUtils.makedirs(RAW_FILE_DIR) 
 
 URLS.each_pair do |k, url|
   
@@ -49,7 +47,7 @@ URLS.each_pair do |k, url|
       puts [label, year,quarter ].join("\t")
       
       # download the file
-      local_filename = File.join(FILE_DIR, label)
+      local_filename = File.join(RAW_FILE_DIR, label)
       puts "\nDownloading #{href} to #{local_filename}"
       
       download_attempts = 3
@@ -67,7 +65,7 @@ URLS.each_pair do |k, url|
         end
       else
         
-        local_folder = File.join(FILE_DIR, year,quarter)
+        local_folder = File.join(RAW_FILE_DIR, year,quarter)
         FileUtils.makedirs(local_folder)
       
         puts "\nUnzipping #{local_filename} into #{local_folder}"

@@ -17,9 +17,12 @@
 # But it's more fun than tediously entering this information
 
 
+## TODO:
+# - Redo table imports...EVERY ROW is delimited by $ ???
+# - Add indexes on ROLE_COD, ISR, DRUG_SEQ
+#
 
-require 'rubygems'
-require 'fileutils'
+require './constants.rb'
 require 'mysql'
 
 START_LINE = 'C. DATA ELEMENT DESCRIPTIONS'
@@ -30,8 +33,6 @@ SKIP_LINES = [
   /^-{2,}/  
 ]
 
-DATAFILES_DIR = 'data-hold/datafiles'
-README_FILE = File.join(DATAFILES_DIR, 'Asc_nts.txt')
 
 lines = File.open(README_FILE).readlines[40..-1] # skip Table of Contents
 lines = lines[ lines.index{|x| x.index START_LINE}...lines.index{|x| x.index END_LINE} ]
@@ -164,5 +165,5 @@ table_info.each do |table|
   
 end
 
-
+# Program exited with code #0 after 7213.98 seconds.
 

@@ -7,15 +7,12 @@
 #
 # Description: Nothing yet
 
-require 'rubygems'
-require 'nokogiri'
-require 'open-uri'
-require 'fileutils'
-FILE_DIR = 'data-hold/datafiles/raw'
+require './constants.rb'
+RAW_FILE_DIR = 'data-hold/datafiles/raw'
 
 filenames = {}
 
-Dir.glob("#{FILE_DIR}/**/SIZE*.TXT").each do |fname|  
+Dir.glob("#{RAW_FILE_DIR}/**/SIZE*.TXT").each do |fname|  
   File.open(fname).readlines.each do |line|
     if vals = line.match(/^(\w+)\.TXT\s+([\d,]+)\s+([\d,]+)/)
       o = {'fname'=>vals[1], 'records'=>vals[2], 'rows'=>vals[3]}

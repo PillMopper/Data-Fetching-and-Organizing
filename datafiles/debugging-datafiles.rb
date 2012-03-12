@@ -8,11 +8,8 @@
 #
 # Check out datafiles for column mismatches and other irregularities
 #
-require 'rubygems'
-require 'fileutils'
-require 'json'
+require './constants.rb'
 
-DATAFILES_DIR = 'data-hold/datafiles'
 $ERRORS = {}
 $STATE = {:total_error_count=>0}
 
