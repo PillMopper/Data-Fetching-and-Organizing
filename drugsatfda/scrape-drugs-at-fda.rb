@@ -14,10 +14,7 @@
 #
 # We'll just save and store the pages for now, parse them in a different script
 
-require 'rubygems'
-require 'nokogiri'
-require 'mechanize'
-require 'fileutils'
+require './constants.rb'
 
 BASE_URL = 'http://www.accessdata.fda.gov/scripts/cder/drugsatfda/'
 BASE_ENDPOINT = 'index.cfm?'
@@ -26,12 +23,6 @@ ATTR_HSH = {
   'StartRow' => 1,
   'StepSize' => 5000,
   'DrugInitial' => nil  # the only parameter to worry about
-}
-DATA_DIR = 'data-hold'
-DIRS_HSH = {
-  'index' => "#{DATA_DIR}/indexes",
-  'drugs' => "#{DATA_DIR}/drugs",
-  'subpages' => "#{DATA_DIR}/subpages"
 }
 
 agent = Mechanize.new()
