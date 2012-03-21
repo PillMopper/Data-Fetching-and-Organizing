@@ -3,7 +3,7 @@
 
 require './constants.rb'
 
-Dir.glob("#{DIRS_HSH['drugs']}/*.html").each do |fname|
+Dir.glob("#{DIRS_HSH['drugs']}/../subpages/**/*.html").each do |fname|
 
   puts fname
   contents = File.open(fname){|f| f.read}

@@ -20,13 +20,25 @@
 
 
 require './constants.rb'
+require 'set'
+
+REGEX_SPLITTERS = /\bFOR\b|W\/|\bWITH\b|\bAND\b|\bIN\b|;|,|\(.+?\)|'.+?'|".+?"/
+
+token_set = Set.new
 
 Dir.glob("#{DIRS_HSH['drugs']}/*.html").each do |fname|
-  drug_name = CGI.unescape(File.basename(fname, '.html'))
-  base_drug_name = drug_name.split(' ')[0]
-  puts [base_drug_name, drug_name].join("\t")
+  
+  drug_name = CGI.unescape(File.basename(fname, '.html')).upcase
+  tokens = drug_name.split(REGEX_SPLITTERS).reject{|t| t.length < 4 || t =~ /^(?:\d+)/} 
+  tokens << drug_name.match(/^\d*\-*[A-Z]{3,}/).to_s
+  token_set.merge(tokens)
+  
+
 end
 
+token_array =  token_set.to_a.map{|t| t.strip}.sort
 
+puts token_array.join("\n")
+puts token_array.length
 
 
